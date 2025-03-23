@@ -1,5 +1,7 @@
 # @mary-ext/svelte-query
 
+https://github.com/TanStack/query/tree/6c9d7a7c2b7cc93ab5d003d09faabbdafa2414df/packages/svelte-query/src
+
 my own Svelte adapter for TanStack Query
 
 - Written for Svelte 5.
