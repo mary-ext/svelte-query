@@ -9,20 +9,19 @@ import { onCleanup } from './utils.svelte.js';
 
 export const useIsMutating = (
 	filters?: QueryAccessor<MutationFilters>,
-	queryClient?: QueryClient,
+	queryClient: QueryClient = useQueryClient(),
 ): ReadonlyRef<number> => {
 	return untrack(() => {
-		const client = useQueryClient(queryClient);
-		const mutationCache = client.getMutationCache();
+		const mutationCache = queryClient.getMutationCache();
 
 		const mutations = createMemo(() => {
-			return client.isMutating(filters?.(client));
+			return queryClient.isMutating(filters?.(queryClient));
 		});
 
 		onCleanup(
 			mutationCache.subscribe(
 				createEventHandler(() => {
-					mutations.value = client.isMutating(filters?.(client));
+					mutations.value = queryClient.isMutating(filters?.(queryClient));
 				}),
 			),
 		);

@@ -9,20 +9,19 @@ import { onCleanup } from './utils.svelte.js';
 
 export const useIsFetching = (
 	filters?: QueryAccessor<QueryFilters>,
-	queryClient?: QueryClient,
+	queryClient: QueryClient = useQueryClient(),
 ): ReadonlyRef<number> => {
 	return untrack(() => {
-		const client = useQueryClient(queryClient);
-		const queryCache = client.getQueryCache();
+		const queryCache = queryClient.getQueryCache();
 
 		const queries = createMemo(() => {
-			return client.isFetching(filters?.(client));
+			return queryClient.isFetching(filters?.(queryClient));
 		});
 
 		onCleanup(
 			queryCache.subscribe(
 				createEventHandler(() => {
-					queries.value = client.isFetching(filters?.(client));
+					queries.value = queryClient.isFetching(filters?.(queryClient));
 				}),
 			),
 		);

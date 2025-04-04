@@ -23,20 +23,19 @@ const getResult = <TResult = MutationState>(
 
 export const useMutationState = <TResult = MutationState>(
 	options: QueryAccessor<MutationStateOptions<TResult>>,
-	queryClient?: QueryClient,
+	queryClient: QueryClient = useQueryClient(),
 ): ReadonlyRef<Array<TResult>> => {
 	return untrack(() => {
-		const client = useQueryClient(queryClient);
-		const mutationCache = client.getMutationCache();
+		const mutationCache = queryClient.getMutationCache();
 
 		const result = createMemo(() => {
-			return getResult(mutationCache, options(client));
+			return getResult(mutationCache, options(queryClient));
 		});
 
 		onCleanup(
 			mutationCache.subscribe(
 				createEventHandler(() => {
-					result.value = replaceEqualDeep(result, getResult(mutationCache, options(client)));
+					result.value = replaceEqualDeep(result, getResult(mutationCache, options(queryClient)));
 				}),
 			),
 		);

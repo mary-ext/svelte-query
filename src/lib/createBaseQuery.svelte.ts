@@ -10,20 +10,19 @@ import { createStateObject, onCleanup } from './utils.svelte.js';
 export const createBaseQuery = <TQueryFnData, TError, TData, TQueryData, TQueryKey extends QueryKey>(
 	options: QueryAccessor<CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>>,
 	Observer: typeof QueryObserver,
-	queryClient?: QueryClient,
+	queryClient: QueryClient = useQueryClient(),
 ): CreateBaseQueryResult<TData, TError> => {
 	return untrack(() => {
-		const client = useQueryClient(queryClient);
 		const isFrozen = useIsFrozen();
 
 		const defaultedOptions = createMemo(() => {
-			return client.defaultQueryOptions(options(client));
+			return queryClient.defaultQueryOptions(options(queryClient));
 		});
 
 		const initialDefaultedOptions = defaultedOptions.value;
 
 		const observer = new Observer<TQueryFnData, TError, TData, TQueryData, TQueryKey>(
-			client,
+			queryClient,
 			initialDefaultedOptions,
 		);
 

@@ -1,5 +1,5 @@
 import { untrack } from 'svelte';
-import { createEffect, createEventHandler, createMemo, useIsFrozen, type ReadonlyRef } from 'svelte-freeze';
+import { createEventHandler, createMemo, useIsFrozen, type ReadonlyRef } from 'svelte-freeze';
 
 import {
 	QueriesObserver,
@@ -177,18 +177,17 @@ export function createQueries<T extends Array<any>, TCombinedResult = QueriesRes
 		queries: [...QueriesOptions<T>] | [...{ [K in keyof T]: GetQueryObserverOptionsForCreateQueries<T[K]> }];
 		combine?: (result: QueriesResults<T>) => TCombinedResult;
 	}>,
-	queryClient?: QueryClient,
+	queryClient: QueryClient = useQueryClient(),
 ): ReadonlyRef<TCombinedResult> {
 	return untrack(() => {
-		const client = useQueryClient(queryClient);
 		const isFrozen = useIsFrozen();
 
 		const defaultedOptions = createMemo(() => {
-			const options = queriesOptions(client);
+			const options = queriesOptions(queryClient);
 
 			return {
 				queries: options.queries.map((queryOption) => {
-					return client.defaultQueryOptions(queryOption);
+					return queryClient.defaultQueryOptions(queryOption);
 				}),
 				combine: options.combine,
 			};
@@ -197,7 +196,7 @@ export function createQueries<T extends Array<any>, TCombinedResult = QueriesRes
 		const initialDefaultedOptions = defaultedOptions.value;
 
 		const observer = new QueriesObserver(
-			client,
+			queryClient,
 			initialDefaultedOptions.queries,
 			initialDefaultedOptions as QueriesObserverOptions<TCombinedResult>,
 		);

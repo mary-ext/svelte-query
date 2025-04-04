@@ -14,19 +14,17 @@ import { createStateObject, noop, onCleanup } from './utils.svelte.js';
 
 export const createMutation = <TData = unknown, TError = DefaultError, TVariables = void, TContext = unknown>(
 	options: QueryAccessor<CreateMutationOptions<TData, TError, TVariables, TContext>>,
-	queryClient?: QueryClient,
+	queryClient: QueryClient = useQueryClient(),
 ): CreateMutationResult<TData, TError, TVariables, TContext> => {
 	return untrack(() => {
-		const client = useQueryClient(queryClient);
-
 		const defaultedOptions = createMemo(() => {
-			return client.defaultMutationOptions(options(client));
+			return queryClient.defaultMutationOptions(options(queryClient));
 		});
 
 		const initialDefaultedOptions = defaultedOptions.value;
 
 		const observer = new MutationObserver<TData, TError, TVariables, TContext>(
-			client,
+			queryClient,
 			initialDefaultedOptions,
 		);
 
